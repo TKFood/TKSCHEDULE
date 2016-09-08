@@ -29,7 +29,7 @@ namespace TKSCHEDULE
         {
             InitializeComponent();
             timer1.Enabled = true;
-            timer1.Interval = 1000;
+            timer1.Interval = 1000*60;
             timer1.Start();
         }
 
