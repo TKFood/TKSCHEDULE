@@ -57,8 +57,8 @@ namespace TKSCHEDULE
         }
         public void HRAUTORUN()
         {
-            string hh = "14";
-            string mm = "12";
+            string hh = "8";
+            string mm = "10";
             if (HRAUTO.Equals("Y")&& DateTime.Now.Hour.ToString().Equals(hh)&&DateTime.Now.Minute.ToString().Equals(mm))
             {                
                 ADDHRCARD();
