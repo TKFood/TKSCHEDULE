@@ -260,12 +260,12 @@ namespace TKSCHEDULE
                 if (result == 0)
                 {
                     tran.Rollback();    //交易取消
-                    label3.Text = DateTime.Now.ToString("yyyymmdd") + " FAIL";
+                    label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + " FAIL";
                 }
                 else
                 {
-                    tran.Commit();      //執行交易
-                    label3.Text = DateTime.Now.ToString("yyyymmdd") + " DONE";
+                    //tran.Commit();      //執行交易
+                    label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + " DONE";
 
                 }
 
