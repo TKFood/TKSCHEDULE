@@ -17,6 +17,7 @@ namespace TKSCHEDULE
         string connectionString;
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbSqlQuery = new StringBuilder();
+        StringBuilder sbSqlEXE = new StringBuilder();
         SqlDataAdapter adapter = new SqlDataAdapter();
         SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
         SqlTransaction tran;
@@ -74,186 +75,173 @@ namespace TKSCHEDULE
             DateTime carddt2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 18, 30, 0);
             DateTime operdat = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
             DateTime operdat2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
-
             
-
             try
             {
 
                 connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
                 sqlConn = new SqlConnection(connectionString);
 
+                sqlConn.Close();           
+                sbSqlEXE.Clear();
+                sbSql.Clear();
+
+                sbSql.Append(" SELECT [Employee].[EmployeeId],[AttendanceRank].[Name]");
+                sbSql.Append(" FROM [HRMDB].[dbo].[Employee],[HRMDB].[dbo].[AttendanceEmpRank],[HRMDB].[dbo].[AttendanceRank]");
+                sbSql.Append(" WHERE [Employee].[EmployeeId]=[AttendanceEmpRank].[EmployeeId]");
+                sbSql.Append(" AND [AttendanceEmpRank].[AttendanceRankId]=[AttendanceRank].[AttendanceRankId] ");
+                sbSql.Append(" AND CONVERT(varchar(100),[AttendanceEmpRank].[Date],112)=CONVERT(varchar(100),GETDATE(),112)");
+                sbSql.Append(" AND [Employee].[EmployeeId]='C9AEC8C3-8889-4A8B-B718-9CE89AA84B22'");
+                sbSql.Append(" ");
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "TEMPds");
+                sqlConn.Close();
+
                 sqlConn.Close();
                 sqlConn.Open();
                 tran = sqlConn.BeginTransaction();
 
-                sbSql.Clear();
-                sbSql.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
-                sbSql.AppendFormat(" SELECT  '{0}' AS [AttendanceRollcallId]", Guid.NewGuid());
-                sbSql.Append(" , [Employee].EmployeeId AS [EmployeeId]");
-                sbSql.AppendFormat(" ,'{0}' AS [Date]", workdt1.ToString("yyyy-MM-dd 00:00:00"));
-                sbSql.AppendFormat(" ,'{0}' AS [BeginTime]", workdt1.ToString("yyyy-MM-dd HH:mm:ss"));
-                sbSql.AppendFormat(" ,'{0}' AS [EndTime]", workdt2.ToString("yyyy-MM-dd HH:mm:ss"));
-                sbSql.Append(" ,'13716c6bf390da08b46d1b85e1c1d24d986c9' AS[AttendanceRankId]");
-                sbSql.Append(" ,'R13716c6bf390da08b46d1b85e1c1d24d986c9' AS[AttendanceTypeId]");
-                sbSql.Append(" ,CASE datepart(weekday, getdate()) WHEN '1' THEN 0  WHEN '7' THEN 0 ELSE 480 END  AS [Hours]");
-                sbSql.Append(" ,CASE datepart(weekday, getdate()) WHEN '1' THEN 0  WHEN '7' THEN 0 ELSE 480 END  AS [QuartersHours]");
-                sbSql.Append(" ,'AttendanceUnit_003' AS [QuartersHoursUnit]");
-                sbSql.Append(" ,'0' AS [IsConfirm]");
-                sbSql.AppendFormat(" ,'{0}' AS [OperationDate]", operdat.ToString("yyyy-MM-dd HH:mm:ss"));
-                sbSql.Append(" ,'FC0D07EA-E0FD-4BCF-B127-22F83D63D834' AS [UserId]");
-                sbSql.Append(" ,'1' AS [Recover]");
-                sbSql.Append(" ,NULL AS [Remark]");
-                sbSql.AppendFormat(" ,'{0}' AS [CreateDate]", operdat.ToString("yyyy-MM-dd HH:mm:ss")); ;
-                sbSql.AppendFormat(" ,'{0}' AS [LastModifiedDate]", operdat.ToString("yyyy-MM-dd HH:mm:ss"));
-                sbSql.Append(" ,'FC0D07EA-E0FD-4BCF-B127-22F83D63D834' AS [CreateBy]");
-                sbSql.Append(" ,'FC0D07EA-E0FD-4BCF-B127-22F83D63D834' AS [LastModifiedBy]");
-                sbSql.Append(" ,NULL AS [CorporationId]");
-                sbSql.Append(" ,'1' AS [Flag]");
-                sbSql.Append(" ,NULL AS [AssignReason]");
-                sbSql.Append(" ,'c9aec8c3-8889-4a8b-b718-9ce89aa84b22' AS [OwnerId]");
-                sbSql.Append(" ,NULL AS [VirObjectId]");
-                sbSql.Append(" ,NULL AS [ActualBeginTime]");
-                sbSql.Append(" ,NULL AS [ActualEndTime]");
-                sbSql.Append(" ,'1' AS [Count]");
-                sbSql.Append(" ,CASE datepart(weekday, getdate()) WHEN '1' THEN NULL  WHEN '7' THEN NULL ELSE ' 08:20| 18:30' END  AS [DailyCards]");
-                sbSql.Append(" ,CASE datepart(weekday, getdate()) WHEN '1' THEN NULL  WHEN '7' THEN NULL ELSE ' 08:20| 18:30' END AS [EmpRankCards]");
-                sbSql.AppendFormat(" ,'{0}' AS [CollectBegin]", carddt1.ToString("yyyy-MM-dd HH:mm:ss"));
-                sbSql.AppendFormat(" ,'{0}' AS [CollectEnd]", carddt2.ToString("yyyy-MM-dd HH:mm:ss"));
-                sbSql.Append(" ,'0' AS [IsAbnormal]");
-                sbSql.Append(" FROM [HRMDB].[dbo].[Employee]");
-                sbSql.Append(" WHERE  [Employee].EmployeeId='C9AEC8C3-8889-4A8B-B718-9CE89AA84B22'");
-                sbSql.Append(" ");
+                sbSqlEXE.Clear();
 
-                if (DateTime.Now.DayOfWeek.ToString("d").Equals("1") || DateTime.Now.DayOfWeek.ToString("d").Equals("1") || DateTime.Now.DayOfWeek.ToString("d").Equals("2") || DateTime.Now.DayOfWeek.ToString("d").Equals("3") || DateTime.Now.DayOfWeek.ToString("d").Equals("4") || DateTime.Now.DayOfWeek.ToString("d").Equals("5"))
+                if (ds.Tables["TEMPds"].Rows.Count >=1)
                 {
-                    sbSql.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
-                    sbSql.AppendFormat(" SELECT '{0}' AS [AttendanceCollectId]", Guid.NewGuid());
-                    sbSql.Append(" ,'CEC9EFA6-21E1-4222-A013-9E3F7D15B936' AS [MachineId]");
-                    sbSql.Append(" ,NULL AS [MachineCode]");
-                    sbSql.Append(" ,[CardId] AS [CardId]");
-                    sbSql.Append(" ,[CardNo] AS [CardCode]");
-                    sbSql.Append(" ,CnName AS [EmployeeName]");
-                    sbSql.Append(" ,[Employee].[Code] AS [EmployeeCode]");
-                    sbSql.Append(" ,[Employee].[EmployeeId] AS [EmployeeId]");
-                    sbSql.Append(" ,[Department].[Name] AS [DepartmentName]");
-                    sbSql.Append(" ,[Department].DepartmentId AS [DepartmentId]");
-                    sbSql.Append(" ,'00000000-0000-0000-0000-000000000000' AS [CostCenterId]");
-                    sbSql.Append(" ,NULL AS [CostCenterCode]");
-                    sbSql.AppendFormat(" ,'{0}' AS [Date]", carddt1.ToString("yyyy-MM-dd HH:mm:ss"));
-                    sbSql.AppendFormat(" ,'{0}' AS [Time]", carddt1.ToString("HH:mm"));
-                    sbSql.Append(" ,'0' AS [IsManual]");
-                    sbSql.AppendFormat(" ,'{0} '+[CardNo]+' 03' AS [Source]", carddt1.ToString("yyyy/MM/dd HH:mm"));
-                    sbSql.Append(" ,'0' AS [IsUnusual]");
-                    sbSql.Append(" ,NULL AS [UnusualTypeId]");
-                    sbSql.Append(" ,NULL AS [Remark]");
-                    sbSql.AppendFormat(" ,'{0}' AS [CreateDate]", carddt1.ToString("yyyy-MM-dd 09:10:00"));
-                    sbSql.AppendFormat(" ,'{0}' AS [LastModifiedDate]", carddt1.ToString("yyyy-MM-dd  09:10:00"));
-                    sbSql.Append(" ,'98385A19-5BA6-43E5-BD0A-6A727F2E9C35' AS [CreateBy]");
-                    sbSql.Append(" ,'98385A19-5BA6-43E5-BD0A-6A727F2E9C35' AS [LastModifiedBy]");
-                    sbSql.Append(" ,NULL AS [CorporationId]");
-                    sbSql.Append(" ,'1' AS [Flag]");
-                    sbSql.Append(" ,NULL AS [RepairId]");
-                    sbSql.Append(" ,NULL AS [AttendanceTypeId]");
-                    sbSql.Append(" ,NULL AS [OldLogIds]");
-                    sbSql.Append(" ,'D6A48B3D-FE56-4556-B3B7-1A3FF26048C8' AS [AttendanceCollectLogId]");
-                    sbSql.Append(" ,NULL AS [AssignReason]");
-                    sbSql.Append(" ,'c9aec8c3-8889-4a8b-b718-9ce89aa84b22' AS [OwnerId]");
-                    sbSql.Append(" ,'0' AS [IsEss]");
-                    sbSql.Append(" ,NULL AS [IsEF]");
-                    sbSql.Append(" ,NULL AS [EssNo]");
-                    sbSql.Append(" ,NULL AS [EssType]");
-                    sbSql.Append(" ,NULL AS [ClassCode]");
-                    sbSql.Append(" ,NULL AS [SubmitOperationDate]");
-                    sbSql.Append(" ,NULL AS [SubmitUserId]");
-                    sbSql.Append(" ,NULL AS [ConfirmOperationDate]");
-                    sbSql.Append(" ,NULL AS [ConfirmUserId]");
-                    sbSql.Append(" ,'OperatorResult_001' AS [ApproveResultId]");
-                    sbSql.Append(" ,NULL AS [FoundOperationDate]");
-                    sbSql.Append(" ,NULL AS [FoundUserId]");
-                    sbSql.AppendFormat(" ,'{0}' AS [ApproveDate]", carddt1.ToString("yyyy-MM-dd  09:10:00")); ;
-                    sbSql.Append(" ,'9EF0F7A6-F2F0-491B-A730-CD66CAE430D4' AS [ApproveEmployeeId]");
-                    sbSql.Append(" ,'蘇慧茹' AS [ApproveEmployeeName]");
-                    sbSql.Append(" ,NULL AS [ApproveRemark]");
-                    sbSql.AppendFormat(" ,'{0}' AS [ApproveOperationDate]", carddt1.ToString("yyyy-MM-dd  09:10:00"));
-                    sbSql.Append(" ,'FC0D07EA-E0FD-4BCF-B127-22F83D63D834' AS [ApproveUserId]");
-                    sbSql.Append(" ,NULL AS [RepealOperationDate] ");
-                    sbSql.Append(" ,NULL AS [RepealUserId]");
-                    sbSql.Append(" ,'PlanState_003' AS [StateId]");
-                    sbSql.Append(" ,'0' AS [IsFromEss]");
-                    sbSql.Append(" ,'1' AS [IsForAttendance]");
-                    sbSql.Append(" FROM [HRMDB].[dbo].[Employee],[HRMDB].[dbo].[Card],[HRMDB].[dbo].[Department]");
-                    sbSql.Append(" WHERE [Employee].EMPLOYEEID=[Card] .EMPLOYEEID AND [Employee].DepartmentId=[Department].DepartmentId");
-                    sbSql.Append(" AND ([Employee].EMPLOYEEID='C9AEC8C3-8889-4A8B-B718-9CE89AA84B22' AND CardId='F70447D0-4553-4A8C-86DE-5D1B179B452E')");
-                    sbSql.Append(" ");
-
-                    sbSql.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
-                    sbSql.AppendFormat(" SELECT '{0}' AS [AttendanceCollectId]", Guid.NewGuid());
-                    sbSql.Append(" ,'CEC9EFA6-21E1-4222-A013-9E3F7D15B936' AS [MachineId]");
-                    sbSql.Append(" ,NULL AS [MachineCode]");
-                    sbSql.Append(" ,[CardId] AS [CardId]");
-                    sbSql.Append(" ,[CardNo] AS [CardCode]");
-                    sbSql.Append(" ,CnName AS [EmployeeName]");
-                    sbSql.Append(" ,[Employee].[Code] AS [EmployeeCode]");
-                    sbSql.Append(" ,[Employee].[EmployeeId] AS [EmployeeId]");
-                    sbSql.Append(" ,[Department].[Name] AS [DepartmentName]");
-                    sbSql.Append(" ,[Department].DepartmentId AS [DepartmentId]");
-                    sbSql.Append(" ,'00000000-0000-0000-0000-000000000000' AS [CostCenterId]");
-                    sbSql.Append(" ,NULL AS [CostCenterCode]");
-                    sbSql.AppendFormat(" ,'{0}' AS [Date]", carddt2.ToString("yyyy-MM-dd HH:mm:ss"));
-                    sbSql.AppendFormat(" ,'{0}' AS [Time]", carddt2.ToString("HH:mm"));
-                    sbSql.Append(" ,'0' AS [IsManual]");
-                    sbSql.AppendFormat(" ,'{0} '+[CardNo]+' 03' AS [Source]", carddt2.ToString("yyyy/MM/dd  HH:mm"));
-                    sbSql.Append(" ,'0' AS [IsUnusual]");
-                    sbSql.Append(" ,NULL AS [UnusualTypeId]");
-                    sbSql.Append(" ,NULL AS [Remark]");
-                    sbSql.AppendFormat(" ,'{0}' AS [CreateDate]", operdat2.ToString("yyyy-MM-dd 09:10:00"));
-                    sbSql.AppendFormat(" ,'{0}' AS [LastModifiedDate]", operdat2.ToString("yyyy-MM-dd  09:10:00"));
-                    sbSql.Append(" ,'98385A19-5BA6-43E5-BD0A-6A727F2E9C35' AS [CreateBy]");
-                    sbSql.Append(" ,'98385A19-5BA6-43E5-BD0A-6A727F2E9C35' AS [LastModifiedBy]");
-                    sbSql.Append(" ,NULL AS [CorporationId]");
-                    sbSql.Append(" ,'1' AS [Flag]");
-                    sbSql.Append(" ,NULL AS [RepairId]");
-                    sbSql.Append(" ,NULL AS [AttendanceTypeId]");
-                    sbSql.Append(" ,NULL AS [OldLogIds]");
-                    sbSql.Append(" ,'D6A48B3D-FE56-4556-B3B7-1A3FF26048C8' AS [AttendanceCollectLogId]");
-                    sbSql.Append(" ,NULL AS [AssignReason]");
-                    sbSql.Append(" ,'c9aec8c3-8889-4a8b-b718-9ce89aa84b22' AS [OwnerId]");
-                    sbSql.Append(" ,'0' AS [IsEss]");
-                    sbSql.Append(" ,NULL AS [IsEF]");
-                    sbSql.Append(" ,NULL AS [EssNo]");
-                    sbSql.Append(" ,NULL AS [EssType]");
-                    sbSql.Append(" ,NULL AS [ClassCode]");
-                    sbSql.Append(" ,NULL AS [SubmitOperationDate]");
-                    sbSql.Append(" ,NULL AS [SubmitUserId]");
-                    sbSql.Append(" ,NULL AS [ConfirmOperationDate]");
-                    sbSql.Append(" ,NULL AS [ConfirmUserId]");
-                    sbSql.Append(" ,'OperatorResult_001' AS [ApproveResultId]");
-                    sbSql.Append(" ,NULL AS [FoundOperationDate]");
-                    sbSql.Append(" ,NULL AS [FoundUserId]");
-                    sbSql.AppendFormat(" ,'{0}' AS [ApproveDate]", operdat2.ToString("yyyy-MM-dd  09:10:00")); ;
-                    sbSql.Append(" ,'9EF0F7A6-F2F0-491B-A730-CD66CAE430D4' AS [ApproveEmployeeId]");
-                    sbSql.Append(" ,'蘇慧茹' AS [ApproveEmployeeName]");
-                    sbSql.Append(" ,NULL AS [ApproveRemark]");
-                    sbSql.AppendFormat(" ,'{0}' AS [ApproveOperationDate]", operdat2.ToString("yyyy-MM-dd  09:10:00"));
-                    sbSql.Append(" ,'FC0D07EA-E0FD-4BCF-B127-22F83D63D834' AS [ApproveUserId]");
-                    sbSql.Append(" ,NULL AS [RepealOperationDate] ");
-                    sbSql.Append(" ,NULL AS [RepealUserId]");
-                    sbSql.Append(" ,'PlanState_003' AS [StateId]");
-                    sbSql.Append(" ,'0' AS [IsFromEss]");
-                    sbSql.Append(" ,'1' AS [IsForAttendance]");
-                    sbSql.Append(" FROM [HRMDB].[dbo].[Employee],[HRMDB].[dbo].[Card],[HRMDB].[dbo].[Department]");
-                    sbSql.Append(" WHERE [Employee].EMPLOYEEID=[Card] .EMPLOYEEID AND [Employee].DepartmentId=[Department].DepartmentId");
-                    sbSql.Append(" AND ([Employee].EMPLOYEEID='C9AEC8C3-8889-4A8B-B718-9CE89AA84B22' AND CardId='F70447D0-4553-4A8C-86DE-5D1B179B452E')");
-                    sbSql.Append(" ");
+                    foreach (DataRow od in ds.Tables["TEMPds"].Rows)
+                    {
+                        if(!od["Name"].ToString().Contains("休息"))
+                        {
+                            sbSqlEXE.Append(" ");
+                            sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS [AttendanceRollcallId]", Guid.NewGuid());
+                            sbSqlEXE.Append(" ,[EmployeeId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 00:00:00.000' AS [Date]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[BeginTime],114) AS [BeginTime] ");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[EndTime],114) AS [EndTime]");
+                            sbSqlEXE.Append(" ,[AttendanceRankId]");
+                            sbSqlEXE.Append(" ,[AttendanceTypeId]");
+                            sbSqlEXE.Append(" ,[Hours]");
+                            sbSqlEXE.Append(" ,[QuartersHours]");
+                            sbSqlEXE.Append(" ,[QuartersHoursUnit]");
+                            sbSqlEXE.Append(" ,[IsConfirm]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [OperationDate]");
+                            sbSqlEXE.Append(" ,[UserId]");
+                            sbSqlEXE.Append(" ,[Recover]");
+                            sbSqlEXE.Append(" ,[Remark]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [CreateDate]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [LastModifiedDate]");
+                            sbSqlEXE.Append(" ,[CreateBy]");
+                            sbSqlEXE.Append(" ,[LastModifiedBy]");
+                            sbSqlEXE.Append(" ,[CorporationId]");
+                            sbSqlEXE.Append(" ,[Flag]");
+                            sbSqlEXE.Append(" ,[AssignReason]");
+                            sbSqlEXE.Append(" ,[OwnerId]");
+                            sbSqlEXE.Append(" ,[VirObjectId]");
+                            sbSqlEXE.Append(" ,[ActualBeginTime]");
+                            sbSqlEXE.Append(" ,[ActualEndTime]");
+                            sbSqlEXE.Append(" ,[Count]");
+                            sbSqlEXE.Append(" ,[DailyCards]");
+                            sbSqlEXE.Append(" ,[EmpRankCards]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectBegin],114) AS [CollectBegin]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectEnd],114) AS [CollectEnd]");
+                            sbSqlEXE.Append(" ,[IsAbnormal]");
+                            sbSqlEXE.Append(" FROM [HRMDB].[dbo].[AttendanceRollcall] WITH (NOLOCK)");
+                            sbSqlEXE.AppendFormat(" WHERE [Hours]>0 AND [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.Append(" ORDER BY [AttendanceRollcall].[Date] DESC ");
+                            sbSqlEXE.Append(" ");
+                            sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1  '{0}' AS [AttendanceCollectId]", Guid.NewGuid());
+                            sbSqlEXE.Append(" ,[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],114) AS [Date]");
+                            sbSqlEXE.Append(" ,[Time],[IsManual]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],114)+' 000459 03'  AS [Source]");
+                            sbSqlEXE.Append(" ,[IsUnusual],[UnusualTypeId],[Remark]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[CreateDate],114) AS [CreateDate]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[LastModifiedDate],114) AS [LastModifiedDate]");
+                            sbSqlEXE.Append(" ,[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[ApproveDate],114) AS [ApproveDate]");
+                            sbSqlEXE.Append(" ,[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[RepealOperationDate],114) AS [RepealOperationDate]");
+                            sbSqlEXE.Append(" ,[RepealUserId],[StateId],[IsFromEss],[IsForAttendance]");
+                            sbSqlEXE.Append(" FROM  [HRMDB].[dbo].[AttendanceCollect] WITH (NOLOCK)");
+                            sbSqlEXE.Append(" WHERE CONVERT(varchar(100),[AttendanceCollect].[Date],114) >='08:00:00' AND CONVERT(varchar(100),[AttendanceCollect].[Date],114) <='09:00:00'");
+                            sbSqlEXE.AppendFormat(" AND  [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.Append(" ORDER BY [AttendanceCollect].[Date] DESC ");
+                            sbSqlEXE.Append(" ");
+                            sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS  [AttendanceCollectId]", Guid.NewGuid());
+                            sbSqlEXE.Append(" ,[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],114) AS [Date]");
+                            sbSqlEXE.Append(" ,[Time],[IsManual]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],8)+' 000459 03'  AS [Source]");
+                            sbSqlEXE.Append(" ,[IsUnusual],[UnusualTypeId],[Remark]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE()+1,23)+' '+CONVERT(varchar(100),[AttendanceCollect].[CreateDate],114) AS [CreateDate]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE()+1,23)+' '+CONVERT(varchar(100),[AttendanceCollect].[LastModifiedDate],114) AS [LastModifiedDate]");
+                            sbSqlEXE.Append(" ,[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE()+1,23)+' '+CONVERT(varchar(100),[AttendanceCollect].[ApproveDate],114) AS [ApproveDate]");
+                            sbSqlEXE.Append(" ,[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE()+1,23)+' '+CONVERT(varchar(100),[AttendanceCollect].[RepealOperationDate],114) AS [RepealOperationDate]");
+                            sbSqlEXE.Append(" ,[RepealUserId],[StateId],[IsFromEss],[IsForAttendance]  ");
+                            sbSqlEXE.Append(" FROM  [HRMDB].[dbo].[AttendanceCollect] WITH (NOLOCK)");
+                            sbSqlEXE.Append(" WHERE CONVERT(varchar(100),[AttendanceCollect].[Date],114) >='17:00:00'");
+                            sbSqlEXE.AppendFormat(" AND  [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.Append(" ORDER BY [AttendanceCollect].[Date] DESC ");
+                            sbSqlEXE.Append(" ");
+                        }
+                        else
+                        {
+                            sbSqlEXE.Append(" ");
+                            sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS [AttendanceRollcallId]", Guid.NewGuid());
+                            sbSqlEXE.Append(" ,[EmployeeId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 00:00:00.000' AS [Date]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[BeginTime],114) AS [BeginTime] ");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[EndTime],114) AS [EndTime]");
+                            sbSqlEXE.Append(" ,[AttendanceRankId]");
+                            sbSqlEXE.Append(" ,[AttendanceTypeId]");
+                            sbSqlEXE.Append(" ,[Hours]");
+                            sbSqlEXE.Append(" ,[QuartersHours]");
+                            sbSqlEXE.Append(" ,[QuartersHoursUnit]");
+                            sbSqlEXE.Append(" ,[IsConfirm]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [OperationDate]");
+                            sbSqlEXE.Append(" ,[UserId]");
+                            sbSqlEXE.Append(" ,[Recover]");
+                            sbSqlEXE.Append(" ,[Remark]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [CreateDate]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [LastModifiedDate]");
+                            sbSqlEXE.Append(" ,[CreateBy]");
+                            sbSqlEXE.Append(" ,[LastModifiedBy]");
+                            sbSqlEXE.Append(" ,[CorporationId]");
+                            sbSqlEXE.Append(" ,[Flag]");
+                            sbSqlEXE.Append(" ,[AssignReason]");
+                            sbSqlEXE.Append(" ,[OwnerId]");
+                            sbSqlEXE.Append(" ,[VirObjectId]");
+                            sbSqlEXE.Append(" ,[ActualBeginTime]");
+                            sbSqlEXE.Append(" ,[ActualEndTime]");
+                            sbSqlEXE.Append(" ,[Count]");
+                            sbSqlEXE.Append(" ,[DailyCards]");
+                            sbSqlEXE.Append(" ,[EmpRankCards]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectBegin],114) AS [CollectBegin]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectEnd],114) AS [CollectEnd]");
+                            sbSqlEXE.Append(" ,[IsAbnormal]");
+                            sbSqlEXE.Append(" FROM [HRMDB].[dbo].[AttendanceRollcall] WITH (NOLOCK)");
+                            sbSqlEXE.AppendFormat(" WHERE [Hours]=0 AND [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.Append(" ORDER BY [AttendanceRollcall].[Date] DESC ");
+                            sbSqlEXE.Append(" ");
+                            
+                        }
+                        
+                    }
+                        
                 }
 
-               
-                //sbSql.AppendFormat("  UPDATE Member SET Cname='{1}',Mobile1='{2}' WHERE ID='{0}' ", list_Member[0].ID.ToString(), list_Member[0].Cname.ToString(), list_Member[0].Mobile1.ToString());
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
+                cmd.CommandText = sbSqlEXE.ToString();
                 cmd.Transaction = tran;
                 result = cmd.ExecuteNonQuery();
 
@@ -264,7 +252,7 @@ namespace TKSCHEDULE
                 }
                 else
                 {
-                    //tran.Commit();      //執行交易
+                    tran.Commit();      //執行交易
                     label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + " DONE";
 
                 }
