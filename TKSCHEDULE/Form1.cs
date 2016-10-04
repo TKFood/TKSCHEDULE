@@ -65,7 +65,7 @@ namespace TKSCHEDULE
         }
         public void HRAUTORUN()
         {
-            string hh = "8";
+            string hh = "08";
             string mm = "10";
             if (HRAUTO.Equals("Y")&& DateTime.Now.Hour.ToString().Equals(hh)&&DateTime.Now.Minute.ToString().Equals(mm))
             {                
@@ -83,7 +83,15 @@ namespace TKSCHEDULE
             DateTime carddt2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 18, 30, 0);
             DateTime operdat = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
             DateTime operdat2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
-            
+
+            Random Begin = new Random();//亂數種子
+            int BeginTime = Begin.Next(20, 29);
+            Random End = new Random();//亂數種子
+            int EndTime = End.Next(30, 59);
+
+            string SBeginTime = "08:" + BeginTime.ToString();
+            string SEndTime = "18:" + EndTime.ToString();
+
             try
             {
 
@@ -151,10 +159,10 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ,[ActualBeginTime]");
                             sbSqlEXE.Append(" ,[ActualEndTime]");
                             sbSqlEXE.Append(" ,[Count]");
-                            sbSqlEXE.Append(" ,[DailyCards]");
-                            sbSqlEXE.Append(" ,[EmpRankCards]");
-                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectBegin],114) AS [CollectBegin]");
-                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectEnd],114) AS [CollectEnd]");
+                            sbSqlEXE.AppendFormat(" ,' '+'{0}'+'| '+'{1}'  AS [DailyCards] ", SBeginTime.ToString(),SEndTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,' '+'{0}'+'| '+'{1}'  AS [EmpRankCards]", SBeginTime.ToString(),SEndTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [CollectBegin]", SBeginTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [CollectEnd]", SEndTime.ToString());
                             sbSqlEXE.Append(" ,[IsAbnormal]");
                             sbSqlEXE.Append(" FROM [HRMDB].[dbo].[AttendanceRollcall] WITH (NOLOCK)");
                             sbSqlEXE.AppendFormat(" WHERE [Hours]>0 AND [EmployeeId]='{0}'", od["EmployeeId"].ToString());
@@ -163,9 +171,10 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
                             sbSqlEXE.AppendFormat(" SELECT TOP 1  '{0}' AS [AttendanceCollectId]", Guid.NewGuid());
                             sbSqlEXE.Append(" ,[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode]");
-                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],114) AS [Date]");
-                            sbSqlEXE.Append(" ,[Time],[IsManual]");
-                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],8)+' 000459 03'  AS [Source]");
+                            sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [Date] ", SBeginTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,'{0}' AS [Time]", SBeginTime.ToString());
+                            sbSqlEXE.Append(" ,[IsManual]");
+                            sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}'+' 000459 03'  AS [Source]", SBeginTime.ToString());
                             sbSqlEXE.Append(" ,[IsUnusual],[UnusualTypeId],[Remark]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[CreateDate],114) AS [CreateDate]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[LastModifiedDate],114) AS [LastModifiedDate]");
@@ -182,9 +191,10 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
                             sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS  [AttendanceCollectId]", Guid.NewGuid());
                             sbSqlEXE.Append(" ,[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode]");
-                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],114) AS [Date]");
-                            sbSqlEXE.Append(" ,[Time],[IsManual]");
-                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceCollect].[Date],8)+' 000459 03'  AS [Source]");
+                            sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [Date] ", SEndTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,'{0}' AS [Time]", SEndTime.ToString());
+                            sbSqlEXE.Append(" ,[IsManual]");
+                            sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}'+' 000459 03'  AS [Source]", SEndTime.ToString());
                             sbSqlEXE.Append(" ,[IsUnusual],[UnusualTypeId],[Remark]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE()+1,23)+' '+CONVERT(varchar(100),[AttendanceCollect].[CreateDate],114) AS [CreateDate]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE()+1,23)+' '+CONVERT(varchar(100),[AttendanceCollect].[LastModifiedDate],114) AS [LastModifiedDate]");
