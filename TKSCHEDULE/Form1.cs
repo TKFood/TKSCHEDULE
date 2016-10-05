@@ -84,6 +84,7 @@ namespace TKSCHEDULE
             DateTime operdat = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
             DateTime operdat2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
 
+            //set BeginTime,EndTime
             Random Begin = new Random();//亂數種子
             int BeginTime = Begin.Next(20, 29);
             Random End = new Random();//亂數種子
