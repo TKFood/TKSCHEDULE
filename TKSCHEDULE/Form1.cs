@@ -84,14 +84,7 @@ namespace TKSCHEDULE
             DateTime operdat = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
             DateTime operdat2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day , 09, 10, 0);
 
-            //set BeginTime,EndTime
-            Random Begin = new Random();//亂數種子
-            int BeginTime = Begin.Next(20, 29);
-            Random End = new Random();//亂數種子
-            int EndTime = End.Next(30, 59);
 
-            string SBeginTime = "08:" + BeginTime.ToString();
-            string SEndTime = "18:" + EndTime.ToString();
 
             try
             {
@@ -129,7 +122,16 @@ namespace TKSCHEDULE
                 {
                     foreach (DataRow od in ds.Tables["TEMPds"].Rows)
                     {
-                        if(!od["Name"].ToString().Contains("休息"))
+                        //set BeginTime,EndTime
+                        Random Begin = new Random();//亂數種子
+                        int BeginTime = Begin.Next(15, 29);
+                        Random End = new Random();//亂數種子
+                        int EndTime = End.Next(25, 59);
+
+                        string SBeginTime = "08:" + BeginTime.ToString();
+                        string SEndTime = "18:" + EndTime.ToString();
+
+                        if (!od["Name"].ToString().Contains("休息"))
                         {
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
