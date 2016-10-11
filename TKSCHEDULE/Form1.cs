@@ -66,7 +66,7 @@ namespace TKSCHEDULE
         public void HRAUTORUN()
         {
             string hh = "08";
-            string mm = "10";
+            string mm = "08";
             if (HRAUTO.Equals("Y")&& DateTime.Now.Hour.ToString().Equals(hh)&&DateTime.Now.Minute.ToString().Equals(mm))
             {                
                 ADDHRCARD();
@@ -266,6 +266,7 @@ namespace TKSCHEDULE
                 cmd.Transaction = tran;
                 result = cmd.ExecuteNonQuery();
 
+                textBox1.Text= sbSqlEXE.ToString();
                 if (result == 0)
                 {
                     tran.Rollback();    //交易取消
