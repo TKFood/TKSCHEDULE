@@ -65,8 +65,8 @@ namespace TKSCHEDULE
         }
         public void HRAUTORUN()
         {
-            string hh = "08";
-            string mm = "08";
+            string hh = "8";
+            string mm = "45";
             if (HRAUTO.Equals("Y")&& DateTime.Now.Hour.ToString().Equals(hh)&&DateTime.Now.Minute.ToString().Equals(mm))
             {                
                 ADDHRCARD();
@@ -254,30 +254,31 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ");
                             
                         }
-                        
+
+                        cmd.Connection = sqlConn;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = sbSqlEXE.ToString();
+                        cmd.Transaction = tran;
+                        result = cmd.ExecuteNonQuery();
+
+                        textBox1.Text = sbSqlEXE.ToString();
+                        if (result == 0)
+                        {
+                            tran.Rollback();    //交易取消
+                            label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD FAIL";
+                        }
+                        else
+                        {
+                            tran.Commit();      //執行交易
+                            label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD DONE";
+
+                        }
                     }
                         
                 }
 
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSqlEXE.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                textBox1.Text= sbSqlEXE.ToString();
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
-                    label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD FAIL";
-                }
-                else
-                {
-                    tran.Commit();      //執行交易
-                    label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD DONE";
-
-                }
+                
 
                 sqlConn.Close();
 

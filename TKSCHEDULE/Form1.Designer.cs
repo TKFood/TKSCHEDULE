@@ -38,8 +38,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -141,7 +141,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(234, 12);
             this.label2.TabIndex = 1;
-            this.label2.Text = "是否啟動自動打卡(每日08:10執行)";
+            this.label2.Text = "是否啟動自動打卡";
             // 
             // label3
             // 
@@ -174,10 +174,6 @@
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // textBox1
             // 
             this.textBox1.Location = new System.Drawing.Point(-4, 0);
@@ -185,6 +181,10 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(774, 328);
             this.textBox1.TabIndex = 0;
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form1
             // 
