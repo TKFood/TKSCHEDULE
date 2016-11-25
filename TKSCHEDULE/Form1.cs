@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.Media;
+using System.Threading;
 
 namespace TKSCHEDULE
 {
@@ -37,8 +38,13 @@ namespace TKSCHEDULE
         {
             InitializeComponent();
             timer1.Enabled = true;
-            timer1.Interval = 1000*60;
+            timer1.Interval = 1000 * 60;
             timer1.Start();
+
+            //InitializeComponent();
+            //timer1.Enabled = true;
+            //timer1.Interval = 1000;
+            //timer1.Start();
         }
 
         #region FUNCTION
@@ -67,13 +73,16 @@ namespace TKSCHEDULE
         {
             string hh = "8";
             string mm = "45";
-            if (HRAUTO.Equals("Y")&& DateTime.Now.Hour.ToString().Equals(hh)&&DateTime.Now.Minute.ToString().Equals(mm))
-            {                
+            if (HRAUTO.Equals("Y") && DateTime.Now.Hour.ToString().Equals(hh) && DateTime.Now.Minute.ToString().Equals(mm))
+            {
                 ADDHRCARD();
                 UPDATECARD();
             }
-                
-            
+
+            ////測試專用
+            //ADDHRCARD();
+
+
         }
         public void ADDHRCARD()
         {
@@ -120,8 +129,10 @@ namespace TKSCHEDULE
 
                 if (ds.Tables["TEMPds"].Rows.Count >=1)
                 {
-                    foreach (DataRow od in ds.Tables["TEMPds"].Rows)
+                    //foreach (DataRow od in ds.Tables["TEMPds"].Rows)
+                    for (int i = 0; i <= ds.Tables["TEMPds"].Rows.Count; i++)
                     {
+                        
                         //set BeginTime,EndTime
                         Random Begin = new Random();//亂數種子
                         int BeginTime = Begin.Next(15, 29);
@@ -131,11 +142,19 @@ namespace TKSCHEDULE
                         string SBeginTime = "08:" + BeginTime.ToString();
                         string SEndTime = "18:" + EndTime.ToString();
 
-                        if (!od["Name"].ToString().Contains("休息"))
+                        string emp = ds.Tables["TEMPds"].Rows[i]["EmployeeId"].ToString();
+                        string office= ds.Tables["TEMPds"].Rows[i]["Name"].ToString();
+                        Guid guid1= Guid.NewGuid();
+                        Guid guid2 = Guid.NewGuid();
+                        Guid guid3 = Guid.NewGuid();
+                        Guid guid4 = Guid.NewGuid();
+
+
+                        if (!office.ToString().Contains("休息"))
                         {
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
-                            sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS [AttendanceRollcallId]", Guid.NewGuid());
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 NEWID() AS [AttendanceRollcallId]", guid1.ToString());
                             sbSqlEXE.Append(" ,[EmployeeId]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 00:00:00.000' AS [Date]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[BeginTime],114) AS [BeginTime] ");
@@ -162,17 +181,17 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ,[ActualBeginTime]");
                             sbSqlEXE.Append(" ,[ActualEndTime]");
                             sbSqlEXE.Append(" ,[Count]");
-                            sbSqlEXE.AppendFormat(" ,' '+'{0}'+'| '+'{1}'  AS [DailyCards] ", SBeginTime.ToString(),SEndTime.ToString());
-                            sbSqlEXE.AppendFormat(" ,' '+'{0}'+'| '+'{1}'  AS [EmpRankCards]", SBeginTime.ToString(),SEndTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,' '+'{0}'+'| '+'{1}'  AS [DailyCards] ", SBeginTime.ToString(), SEndTime.ToString());
+                            sbSqlEXE.AppendFormat(" ,' '+'{0}'+'| '+'{1}'  AS [EmpRankCards]", SBeginTime.ToString(), SEndTime.ToString());
                             sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [CollectBegin]", SBeginTime.ToString());
                             sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [CollectEnd]", SEndTime.ToString());
                             sbSqlEXE.Append(" ,[IsAbnormal]");
                             sbSqlEXE.Append(" FROM [HRMDB].[dbo].[AttendanceRollcall] WITH (NOLOCK)");
-                            sbSqlEXE.AppendFormat(" WHERE [Hours]>0 AND [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.AppendFormat(" WHERE [Hours]>0 AND [EmployeeId]='{0}'", emp);
                             sbSqlEXE.Append(" ORDER BY [AttendanceRollcall].[Date] DESC ");
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
-                            sbSqlEXE.AppendFormat(" SELECT TOP 1  '{0}' AS [AttendanceCollectId]", Guid.NewGuid());
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1  NEWID() AS [AttendanceCollectId]", guid2.ToString());
                             sbSqlEXE.Append(" ,[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode]");
                             sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [Date] ", SBeginTime.ToString());
                             sbSqlEXE.AppendFormat(" ,'{0}' AS [Time]", SBeginTime.ToString());
@@ -188,11 +207,11 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ,[RepealUserId],[StateId],[IsFromEss],[IsForAttendance]");
                             sbSqlEXE.Append(" FROM  [HRMDB].[dbo].[AttendanceCollect] WITH (NOLOCK)");
                             sbSqlEXE.Append(" WHERE CONVERT(varchar(100),[AttendanceCollect].[Date],114) >='08:00:00' AND CONVERT(varchar(100),[AttendanceCollect].[Date],114) <='09:00:00'");
-                            sbSqlEXE.AppendFormat(" AND  [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.AppendFormat(" AND  [EmployeeId]='{0}'", emp);
                             sbSqlEXE.Append(" ORDER BY [AttendanceCollect].[Date] DESC ");
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceCollect] ([AttendanceCollectId],[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode],[Date],[Time],[IsManual],[Source],[IsUnusual],[UnusualTypeId],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[RepairId],[AttendanceTypeId],[OldLogIds],[AttendanceCollectLogId],[AssignReason],[OwnerId],[IsEss],[IsEF],[EssNo],[EssType],[ClassCode],[SubmitOperationDate],[SubmitUserId],[ConfirmOperationDate],[ConfirmUserId],[ApproveResultId],[FoundOperationDate],[FoundUserId],[ApproveDate],[ApproveEmployeeId],[ApproveEmployeeName],[ApproveRemark],[ApproveOperationDate],[ApproveUserId],[RepealOperationDate],[RepealUserId],[StateId],[IsFromEss],[IsForAttendance] )");
-                            sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS  [AttendanceCollectId]", Guid.NewGuid());
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 NEWID() AS  [AttendanceCollectId]", guid3.ToString());
                             sbSqlEXE.Append(" ,[MachineId],[MachineCode],[CardId],[CardCode],[EmployeeName],[EmployeeCode],[EmployeeId],[DepartmentName],[DepartmentId],[CostCenterId],[CostCenterCode]");
                             sbSqlEXE.AppendFormat(" ,CONVERT(varchar(100),GETDATE(),23)+' '+'{0}' AS [Date] ", SEndTime.ToString());
                             sbSqlEXE.AppendFormat(" ,'{0}' AS [Time]", SEndTime.ToString());
@@ -208,7 +227,7 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ,[RepealUserId],[StateId],[IsFromEss],[IsForAttendance]  ");
                             sbSqlEXE.Append(" FROM  [HRMDB].[dbo].[AttendanceCollect] WITH (NOLOCK)");
                             sbSqlEXE.Append(" WHERE CONVERT(varchar(100),[AttendanceCollect].[Date],114) >='17:00:00'");
-                            sbSqlEXE.AppendFormat(" AND  [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.AppendFormat(" AND  [EmployeeId]='{0}'", emp);
                             sbSqlEXE.Append(" ORDER BY [AttendanceCollect].[Date] DESC ");
                             sbSqlEXE.Append(" ");
                         }
@@ -216,7 +235,7 @@ namespace TKSCHEDULE
                         {
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
-                            sbSqlEXE.AppendFormat(" SELECT TOP 1 '{0}' AS [AttendanceRollcallId]", Guid.NewGuid());
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 NEWID() AS [AttendanceRollcallId]", guid4.ToString());
                             sbSqlEXE.Append(" ,[EmployeeId]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 00:00:00.000' AS [Date]");
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[BeginTime],114) AS [BeginTime] ");
@@ -249,10 +268,10 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectEnd],114) AS [CollectEnd]");
                             sbSqlEXE.Append(" ,[IsAbnormal]");
                             sbSqlEXE.Append(" FROM [HRMDB].[dbo].[AttendanceRollcall] WITH (NOLOCK)");
-                            sbSqlEXE.AppendFormat(" WHERE [Hours]=0 AND [EmployeeId]='{0}'", od["EmployeeId"].ToString());
+                            sbSqlEXE.AppendFormat(" WHERE [Hours]=0 AND [EmployeeId]='{0}'", emp);
                             sbSqlEXE.Append(" ORDER BY [AttendanceRollcall].[Date] DESC ");
                             sbSqlEXE.Append(" ");
-                            
+
                         }
 
                         cmd.Connection = sqlConn;
@@ -280,7 +299,7 @@ namespace TKSCHEDULE
 
                 
 
-                sqlConn.Close();
+               
 
             }
             catch
