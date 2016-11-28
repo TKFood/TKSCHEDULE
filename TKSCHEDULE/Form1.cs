@@ -121,9 +121,9 @@ namespace TKSCHEDULE
                 adapter.Fill(ds, "TEMPds");
                 sqlConn.Close();
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
+                //sqlConn.Close();
+                //sqlConn.Open();
+                //tran = sqlConn.BeginTransaction();
 
                 sbSqlEXE.Clear();
 
@@ -132,7 +132,12 @@ namespace TKSCHEDULE
                     //foreach (DataRow od in ds.Tables["TEMPds"].Rows)
                     for (int i = 0; i <= ds.Tables["TEMPds"].Rows.Count; i++)
                     {
-                        
+
+                        sqlConn.Close();
+                        sqlConn.Open();
+                        tran = sqlConn.BeginTransaction();
+
+
                         //set BeginTime,EndTime
                         Random Begin = new Random();//亂數種子
                         int BeginTime = Begin.Next(15, 29);
@@ -297,9 +302,9 @@ namespace TKSCHEDULE
                 }
 
 
-                
 
-               
+
+                sqlConn.Close();
 
             }
             catch
