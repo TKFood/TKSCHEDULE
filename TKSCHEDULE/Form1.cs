@@ -111,6 +111,7 @@ namespace TKSCHEDULE
                 sbSql.Append(" AND [AttendanceEmpRank].[AttendanceRankId]=[AttendanceRank].[AttendanceRankId] ");
                 sbSql.Append(" AND CONVERT(varchar(100),[AttendanceEmpRank].[Date],112)=CONVERT(varchar(100),GETDATE(),112)");
                 sbSql.Append(" AND [Employee].[EmployeeId] IN (SELECT [EmployeeId] FROM [TKHR].[dbo].[CARDEMP])");
+               // sbSql.Append(" AND [Employee].[EmployeeId]='C9AEC8C3-8889-4A8B-B718-9CE89AA84B22' ");
                 sbSql.Append(" ");
 
                 adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
