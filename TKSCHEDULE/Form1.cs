@@ -72,7 +72,7 @@ namespace TKSCHEDULE
         public void HRAUTORUN()
         {
             string hh = "8";
-            string mm = "45";
+            string mm = "30";
             if (HRAUTO.Equals("Y") && DateTime.Now.Hour.ToString().Equals(hh) && DateTime.Now.Minute.ToString().Equals(mm))
             {
                 ADDHRCARD();
@@ -105,7 +105,7 @@ namespace TKSCHEDULE
                 sbSqlEXE.Clear();
                 sbSql.Clear();
 
-                sbSql.Append(" SELECT [Employee].[EmployeeId],[AttendanceRank].[Name]");
+                sbSql.Append(" SELECT [Employee].[EmployeeId],[Employee].[CnName],[AttendanceRank].[Name]");
                 sbSql.Append(" FROM [HRMDB].[dbo].[Employee],[HRMDB].[dbo].[AttendanceEmpRank],[HRMDB].[dbo].[AttendanceRank]");
                 sbSql.Append(" WHERE [Employee].[EmployeeId]=[AttendanceEmpRank].[EmployeeId]");
                 sbSql.Append(" AND [AttendanceEmpRank].[AttendanceRankId]=[AttendanceRank].[AttendanceRankId] ");
@@ -126,13 +126,14 @@ namespace TKSCHEDULE
                 //sqlConn.Open();
                 //tran = sqlConn.BeginTransaction();
 
-                sbSqlEXE.Clear();
+                
 
                 if (ds.Tables["TEMPds"].Rows.Count >=1)
                 {
                     //foreach (DataRow od in ds.Tables["TEMPds"].Rows)
                     for (int i = 0; i <= ds.Tables["TEMPds"].Rows.Count; i++)
                     {
+                        sbSqlEXE.Clear();
 
                         sqlConn.Close();
                         sqlConn.Open();
@@ -149,6 +150,7 @@ namespace TKSCHEDULE
                         string SEndTime = "18:" + EndTime.ToString();
 
                         string emp = ds.Tables["TEMPds"].Rows[i]["EmployeeId"].ToString();
+                        string NAME = ds.Tables["TEMPds"].Rows[i]["CnName"].ToString();
                         string office= ds.Tables["TEMPds"].Rows[i]["Name"].ToString();
                         Guid guid1= Guid.NewGuid();
                         Guid guid2 = Guid.NewGuid();
@@ -290,12 +292,14 @@ namespace TKSCHEDULE
                         if (result == 0)
                         {
                             tran.Rollback();    //交易取消
-                            label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD FAIL";
+                            INSERTLOG(NAME,"N");
+                            //label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD FAIL";
                         }
                         else
                         {
                             tran.Commit();      //執行交易
-                            label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD DONE";
+                            INSERTLOG(NAME, "Y");
+                            //label3.Text = DateTime.Now.ToString("yyyy/MM/dd") + "ADD DONE";
 
                         }
                     }
@@ -318,7 +322,30 @@ namespace TKSCHEDULE
                 sqlConn.Close();
             }
         }
+        public void INSERTLOG(string NAME,string STATUS)
+        {
+            sqlConn.Close();
+            sqlConn.Open();
+            tran = sqlConn.BeginTransaction();
+            sbSqlEXE.AppendFormat(" INSERT INTO [TKSCHEDULE].[dbo].[LOG] ([NAME],[LOGTIME],[STATES]) VALUES ('{0}',GETDATE(),'{1}')", NAME,STATUS);
 
+            cmd.Connection = sqlConn;
+            cmd.CommandTimeout = 60;
+            cmd.CommandText = sbSqlEXE.ToString();
+            cmd.Transaction = tran;
+            result = cmd.ExecuteNonQuery();
+
+            textBox1.Text = sbSqlEXE.ToString();
+            if (result == 0)
+            {
+                tran.Rollback();    //交易取消
+            }
+            else
+            {
+                tran.Commit();      //執行交易   
+            }
+
+        }
         public void UPDATECARD()
         {
             try
