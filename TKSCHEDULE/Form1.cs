@@ -56,13 +56,16 @@ namespace TKSCHEDULE
         }
         public void SETbutton1()
         {
-            if(button1.Text.Equals("啟動"))
+            ////測試專用
+            //ADDHRCARD();
+
+            if (button1.Text.Equals("啟動"))
             {
                 HRAUTO = "Y";
                 button1.Text = "停止";
                 button1.ForeColor = Color.Red;
             }
-            else if(button1.Text.Equals("停止"))
+            else if (button1.Text.Equals("停止"))
             {
                 HRAUTO = "N";
                 button1.Text = "啟動";
@@ -73,16 +76,12 @@ namespace TKSCHEDULE
         {
             string hh = "8";
             string mm = "30";
+
             if (HRAUTO.Equals("Y") && DateTime.Now.Hour.ToString().Equals(hh) && DateTime.Now.Minute.ToString().Equals(mm))
             {
                 ADDHRCARD();
                 UPDATECARD();
             }
-
-            ////測試專用
-            //ADDHRCARD();
-
-
         }
         public void ADDHRCARD()
         {
