@@ -157,7 +157,7 @@ namespace TKSCHEDULE
                         Guid guid4 = Guid.NewGuid();
 
 
-                        if (!office.ToString().Contains("休息"))
+                        if (office.ToString().Contains("辨公室"))
                         {
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
@@ -238,7 +238,49 @@ namespace TKSCHEDULE
                             sbSqlEXE.Append(" ORDER BY [AttendanceCollect].[Date] DESC ");
                             sbSqlEXE.Append(" ");
                         }
-                        else
+                        else if(office.ToString().Contains("休息"))
+                        {
+                            sbSqlEXE.Append(" ");
+                            sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
+                            sbSqlEXE.AppendFormat(" SELECT TOP 1 NEWID() AS [AttendanceRollcallId]", guid4.ToString());
+                            sbSqlEXE.Append(" ,[EmployeeId]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 00:00:00.000' AS [Date]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[BeginTime],114) AS [BeginTime] ");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[EndTime],114) AS [EndTime]");
+                            sbSqlEXE.Append(" ,[AttendanceRankId]");
+                            sbSqlEXE.Append(" ,[AttendanceTypeId]");
+                            sbSqlEXE.Append(" ,[Hours]");
+                            sbSqlEXE.Append(" ,[QuartersHours]");
+                            sbSqlEXE.Append(" ,[QuartersHoursUnit]");
+                            sbSqlEXE.Append(" ,[IsConfirm]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [OperationDate]");
+                            sbSqlEXE.Append(" ,[UserId]");
+                            sbSqlEXE.Append(" ,[Recover]");
+                            sbSqlEXE.Append(" ,[Remark]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [CreateDate]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' 09:30:00.000' AS [LastModifiedDate]");
+                            sbSqlEXE.Append(" ,[CreateBy]");
+                            sbSqlEXE.Append(" ,[LastModifiedBy]");
+                            sbSqlEXE.Append(" ,[CorporationId]");
+                            sbSqlEXE.Append(" ,[Flag]");
+                            sbSqlEXE.Append(" ,[AssignReason]");
+                            sbSqlEXE.Append(" ,[OwnerId]");
+                            sbSqlEXE.Append(" ,[VirObjectId]");
+                            sbSqlEXE.Append(" ,[ActualBeginTime]");
+                            sbSqlEXE.Append(" ,[ActualEndTime]");
+                            sbSqlEXE.Append(" ,[Count]");
+                            sbSqlEXE.Append(" ,[DailyCards]");
+                            sbSqlEXE.Append(" ,[EmpRankCards]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectBegin],114) AS [CollectBegin]");
+                            sbSqlEXE.Append(" ,CONVERT(varchar(100),GETDATE(),23)+' '+CONVERT(varchar(100),[AttendanceRollcall].[CollectEnd],114) AS [CollectEnd]");
+                            sbSqlEXE.Append(" ,[IsAbnormal]");
+                            sbSqlEXE.Append(" FROM [HRMDB].[dbo].[AttendanceRollcall] WITH (NOLOCK)");
+                            sbSqlEXE.AppendFormat(" WHERE [Hours]=0 AND [EmployeeId]='{0}'", emp);
+                            sbSqlEXE.Append(" ORDER BY [AttendanceRollcall].[Date] DESC ");
+                            sbSqlEXE.Append(" ");
+
+                        }
+                        else if (office.ToString().Contains("休假"))
                         {
                             sbSqlEXE.Append(" ");
                             sbSqlEXE.Append(" INSERT INTO [HRMDB].[dbo].[AttendanceRollcall] ([AttendanceRollcallId],[EmployeeId],[Date],[BeginTime],[EndTime],[AttendanceRankId],[AttendanceTypeId],[Hours],[QuartersHours],[QuartersHoursUnit],[IsConfirm],[OperationDate],[UserId],[Recover],[Remark],[CreateDate],[LastModifiedDate],[CreateBy],[LastModifiedBy],[CorporationId],[Flag],[AssignReason],[OwnerId],[VirObjectId],[ActualBeginTime],[ActualEndTime],[Count],[DailyCards],[EmpRankCards],[CollectBegin],[CollectEnd],[IsAbnormal]) ");
