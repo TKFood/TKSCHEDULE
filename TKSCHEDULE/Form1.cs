@@ -74,8 +74,8 @@ namespace TKSCHEDULE
         }
         public void HRAUTORUN()
         {
-            string hh = "8";
-            string mm = "29";
+            string hh = "6";
+            string mm = "10";
 
             ////test
             //string hh = "10";
