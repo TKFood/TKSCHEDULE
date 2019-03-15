@@ -74,17 +74,15 @@ namespace TKSCHEDULE
         }
         public void HRAUTORUN()
         {
-            string hh = "6";
-            string mm = "10";
+            string RUNTIME = DateTime.Now.ToString("HH:mm");
+            string hhmm = "07:10";
 
-            ////test
-            //string hh = "10";
-            //string mm = "44";
-
-            if (HRAUTO.Equals("Y") && DateTime.Now.Hour.ToString().Equals(hh) && DateTime.Now.Minute.ToString().Equals(mm))
+            if (HRAUTO.Equals("Y") && RUNTIME.Equals(hhmm))
             {
                 ADDHRCARD();
                 UPDATECARD();
+
+                //MessageBox.Show("OK");
             }
         }
         public void ADDHRCARD()
