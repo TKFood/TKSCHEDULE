@@ -53,6 +53,7 @@ namespace TKSCHEDULE
             label1.Text = DateTime.Now.ToString();
             HRAUTORUN();
 
+           
         }
         public void SETbutton1()
         {
@@ -82,6 +83,7 @@ namespace TKSCHEDULE
                 ADDHRCARD();
                 UPDATECARD();
 
+                UPDATETKCMSMV();
                 //MessageBox.Show("OK");
             }
         }
@@ -370,7 +372,7 @@ namespace TKSCHEDULE
             sqlConn.Close();
             sqlConn.Open();
             tran = sqlConn.BeginTransaction();
-            sbSqlEXE.AppendFormat(" INSERT INTO [TKSCHEDULE].[dbo].[LOG] ([NAME],[LOGTIME],[STATES]) VALUES ('{0}',GETDATE(),'{1}')", NAME,STATUS);
+            sbSqlEXE.AppendFormat(@" INSERT INTO [TKSCHEDULE].[dbo].[LOG] ([NAME],[LOGTIME],[STATES]) VALUES ('{0}',GETDATE(),'{1}')", NAME,STATUS);
 
             cmd.Connection = sqlConn;
             cmd.CommandTimeout = 60;
@@ -523,6 +525,39 @@ namespace TKSCHEDULE
             finally
             {
                 sqlConn.Close();
+            }
+        }
+
+        public void UPDATETKCMSMV()
+        {
+            sqlConn.Close();
+            sqlConn.Open();
+            tran = sqlConn.BeginTransaction();
+
+            sbSqlEXE.AppendFormat(@" UPDATE [TK].dbo.CMSMV");
+            sbSqlEXE.AppendFormat(@" SET [MV004]=[Department].[Code]");
+            sbSqlEXE.AppendFormat(@" FROM  [HRMDB].[dbo].[Employee],[HRMDB].[dbo].[Department],[TK].dbo.CMSMV");
+            sbSqlEXE.AppendFormat(@" WHERE [Employee].[DepartmentId]=[Department].[DepartmentId]");
+            sbSqlEXE.AppendFormat(@" AND [MV001]=[Employee].[CODE] COLLATE Chinese_Taiwan_Stroke_BIN");
+            sbSqlEXE.AppendFormat(@" AND [MV004]<>[Department].[Code] COLLATE Chinese_Taiwan_Stroke_BIN");
+            sbSqlEXE.AppendFormat(@" AND [MV001] NOT LIKE 'P%'");
+            sbSqlEXE.AppendFormat(@" ");
+            sbSqlEXE.AppendFormat(@" ");
+
+            cmd.Connection = sqlConn;
+            cmd.CommandTimeout = 60;
+            cmd.CommandText = sbSqlEXE.ToString();
+            cmd.Transaction = tran;
+            result = cmd.ExecuteNonQuery();
+
+            
+            if (result == 0)
+            {
+                tran.Rollback();    //交易取消
+            }
+            else
+            {
+                tran.Commit();      //執行交易   
             }
         }
         #endregion
